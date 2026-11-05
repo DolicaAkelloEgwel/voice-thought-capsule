@@ -11,12 +11,12 @@ import numpy as np
 import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
+from exhibition import list_demos  # noqa: E402
 from exhibition import (
     RATE,
     ExhibitionError,
     create_demo,
     demo_seconds,
-    list_demos,  # noqa: E402
     load_audio,
     trim_with_fade,
     write_wav,

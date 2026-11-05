@@ -12,10 +12,10 @@ import pytest
 from google.genai import errors
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
+from linker import connect_and_summarise  # noqa: E402
 from linker import (
     LinkingError,
     all_items,
-    connect_and_summarise,  # noqa: E402
     insights_markdown,
     load_insights,
     parse_insights,

@@ -33,7 +33,8 @@ def setup(tmp_path, monkeypatch):
     thoughts_file = tmp_path / "thoughts.json"
     settings = tmp_path / "settings.json"
 
-    import recorder, storage
+    import recorder
+    import storage
 
     monkeypatch.setattr(recorder, "RECORDINGS_DIR", recordings)
     monkeypatch.setattr(

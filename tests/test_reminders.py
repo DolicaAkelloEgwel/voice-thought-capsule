@@ -10,11 +10,11 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
+from reminders import cancel_reminder  # noqa: E402
 from reminders import (
     ReminderError,
     _applescript_text,
     cancel_choices,
-    cancel_reminder,  # noqa: E402
     deliver_due,
     load_schedule,
     schedule_reminder,

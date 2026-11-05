@@ -13,13 +13,8 @@ from google.genai import errors
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from classifier import ClassificationError, classify, parse_items  # noqa: E402
-from storage import (
-    add_thought,
-    items_table,
-    load_thoughts,
-    set_items,
-    unsorted_thoughts,
-)  # noqa: E402
+from storage import load_thoughts  # noqa: E402
+from storage import add_thought, items_table, set_items, unsorted_thoughts
 
 
 class FakeModels:

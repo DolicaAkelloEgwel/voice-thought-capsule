@@ -6,13 +6,8 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from consent import (
-    ConsentError,
-    give_consent,
-    has_consent,
-    require_consent,
-    withdraw_consent,
-)  # noqa: E402
+from consent import has_consent  # noqa: E402
+from consent import ConsentError, give_consent, require_consent, withdraw_consent
 from editing import EditError, Store  # noqa: E402
 from storage import add_thought, load_thoughts  # noqa: E402
 

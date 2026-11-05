@@ -10,22 +10,51 @@ import gradio as gr
 
 import config
 from classifier import ClassificationError, classify
-from consent import (CONSENT_TEXT, ConsentError, give_consent, has_consent,
-                     require_consent, withdraw_consent)
+from consent import (
+    CONSENT_TEXT,
+    ConsentError,
+    give_consent,
+    has_consent,
+    require_consent,
+    withdraw_consent,
+)
 from editing import EditError, Store
-from exhibition import (DEFAULT_INTRO, DEFAULT_OUTRO, EXHIBITION_DIR,
-                        ExhibitionError, create_demo, demo_seconds, list_demos)
-from linker import (LinkingError, connect_and_summarise, insights_markdown,
-                    load_insights)
-from privacy import (delete_all_audio, delete_audio_enabled, remove_file,
-                     set_delete_audio)
+from exhibition import (
+    DEFAULT_INTRO,
+    DEFAULT_OUTRO,
+    EXHIBITION_DIR,
+    ExhibitionError,
+    create_demo,
+    demo_seconds,
+    list_demos,
+)
+from linker import LinkingError, connect_and_summarise, insights_markdown, load_insights
+from privacy import (
+    delete_all_audio,
+    delete_audio_enabled,
+    remove_file,
+    set_delete_audio,
+)
 from qa import QuestionError, ask, notes_markdown
 from recorder import get_duration_seconds, save_recording
-from reminders import (ReminderError, cancel_choices, cancel_reminder,
-                       schedule_reminder, schedule_table, start_scheduler)
+from reminders import (
+    ReminderError,
+    cancel_choices,
+    cancel_reminder,
+    schedule_reminder,
+    schedule_table,
+    start_scheduler,
+)
 from speaker import SpeechError, speak_to_file
-from storage import (THOUGHTS_FILE, add_thought, items_table, load_thoughts,
-                     set_items, thoughts_table, unsorted_thoughts)
+from storage import (
+    THOUGHTS_FILE,
+    add_thought,
+    items_table,
+    load_thoughts,
+    set_items,
+    thoughts_table,
+    unsorted_thoughts,
+)
 from transcriber import TranscriptionError, transcribe
 
 ITEM_HEADERS = ["Type", "Item", "When (as you said it)", "Saved", "From thought"]
