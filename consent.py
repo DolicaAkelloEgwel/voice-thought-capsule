@@ -46,7 +46,10 @@ def has_consent(path=CONSENT_FILE):
 def _write(given, path):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    record = {"given": given, "at": datetime.now().astimezone().isoformat(timespec="seconds")}
+    record = {
+        "given": given,
+        "at": datetime.now().astimezone().isoformat(timespec="seconds"),
+    }
     path.write_text(json.dumps(record, indent=2), encoding="utf-8")
     return record
 
@@ -61,4 +64,6 @@ def withdraw_consent(path=CONSENT_FILE):
 
 def require_consent(path=CONSENT_FILE):
     if not has_consent(path):
-        raise ConsentError("Recording is not allowed yet. Give permission in the Record tab first.")
+        raise ConsentError(
+            "Recording is not allowed yet. Give permission in the Record tab first."
+        )

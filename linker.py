@@ -51,7 +51,9 @@ def all_items(thoughts=None):
     rows = []
     for thought in thoughts if thoughts is not None else load_thoughts():
         for item in thought.get("items") or []:
-            rows.append({**item, "thought_id": thought["id"], "saved": thought["created_at"]})
+            rows.append(
+                {**item, "thought_id": thought["id"], "saved": thought["created_at"]}
+            )
     return rows
 
 
@@ -72,7 +74,9 @@ def parse_insights(reply_text, items):
     try:
         data = json.loads(text)
     except json.JSONDecodeError as error:
-        raise LinkingError("Gemini's answer was not in the expected format. Try again.") from error
+        raise LinkingError(
+            "Gemini's answer was not in the expected format. Try again."
+        ) from error
     if not isinstance(data, dict):
         raise LinkingError("Gemini's answer was not in the expected format. Try again.")
 
@@ -88,8 +92,13 @@ def parse_insights(reply_text, items):
                 ids.append(items[n - 1]["id"])
         title = str(raw.get("title") or "").strip()
         if len(ids) >= 2 and title:
-            themes.append({"title": title, "summary": str(raw.get("summary") or "").strip(),
-                           "item_ids": ids})
+            themes.append(
+                {
+                    "title": title,
+                    "summary": str(raw.get("summary") or "").strip(),
+                    "item_ids": ids,
+                }
+            )
     return {"overview": str(data.get("overview") or "").strip(), "themes": themes}
 
 
@@ -98,7 +107,9 @@ def save_insights(insights, item_ids, path=INSIGHTS_FILE):
     path.parent.mkdir(parents=True, exist_ok=True)
     record = {
         "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
-        "based_on_item_ids": sorted(item_ids),  # lets us notice when new thoughts arrive
+        "based_on_item_ids": sorted(
+            item_ids
+        ),  # lets us notice when new thoughts arrive
         **insights,
     }
     path.write_text(json.dumps(record, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -119,7 +130,9 @@ def connect_and_summarise(thoughts=None, client=None, model=None, path=INSIGHTS_
     """Ask Gemini to group related items, then save and return the result."""
     items = all_items(thoughts)
     if len(items) < 2:
-        raise LinkingError("Save and sort at least two items first - then there is something to connect.")
+        raise LinkingError(
+            "Save and sort at least two items first - then there is something to connect."
+        )
     client = client or make_client()
     model = model or config.get_model()
     try:
@@ -150,8 +163,10 @@ def insights_markdown(insights, thoughts=None):
     made = datetime.fromisoformat(insights["generated_at"]).strftime("%d %b %Y, %H:%M")
     parts = [f"*Made on {made}.*"]
     if set(items) != set(insights.get("based_on_item_ids", [])):
-        parts.append("⚠️ *Your thoughts have changed since then. Click "
-                     "**Connect and summarise** again to update.*")
+        parts.append(
+            "⚠️ *Your thoughts have changed since then. Click "
+            "**Connect and summarise** again to update.*"
+        )
     if insights.get("overview"):
         parts.append(f"### Overview\n{insights['overview']}")
     if not insights.get("themes"):
@@ -162,7 +177,9 @@ def insights_markdown(insights, thoughts=None):
             item = items.get(item_id)
             if item:  # skip items that were deleted later
                 saved = datetime.fromisoformat(item["saved"]).strftime("%d %b, %H:%M")
-                lines.append(f"- {ICONS.get(item['type'], '')} {item['text']} "
-                             f"<small>(recording {saved})</small>")
+                lines.append(
+                    f"- {ICONS.get(item['type'], '')} {item['text']} "
+                    f"<small>(recording {saved})</small>"
+                )
         parts.append("\n".join(lines))
     return "\n\n".join(parts)

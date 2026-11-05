@@ -37,8 +37,10 @@ def speak_to_file(text, out_dir=ANSWERS_DIR, say_command=None):
 
     say = say_command or shutil.which("say")
     if not say:
-        raise SpeechError("Reading aloud uses the built-in macOS voice, "
-                          "which was not found on this computer.")
+        raise SpeechError(
+            "Reading aloud uses the built-in macOS voice, "
+            "which was not found on this computer."
+        )
 
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -49,8 +51,17 @@ def speak_to_file(text, out_dir=ANSWERS_DIR, say_command=None):
     # for a command option.
     text_file.write_text(text, encoding="utf-8")
 
-    command = [say, "-r", SPEAKING_RATE, "-o", str(audio_file),
-               "--file-format=WAVE", "--data-format=LEI16@22050", "-f", str(text_file)]
+    command = [
+        say,
+        "-r",
+        SPEAKING_RATE,
+        "-o",
+        str(audio_file),
+        "--file-format=WAVE",
+        "--data-format=LEI16@22050",
+        "-f",
+        str(text_file),
+    ]
     voice = os.getenv("TTS_VOICE", "").strip()
     if voice:
         command[1:1] = ["-v", voice]
@@ -61,7 +72,9 @@ def speak_to_file(text, out_dir=ANSWERS_DIR, say_command=None):
         hint = " Check the TTS_VOICE name in .env." if voice else ""
         raise SpeechError(f"The Mac voice could not create the audio.{hint}") from error
     except subprocess.TimeoutExpired as error:
-        raise SpeechError("Reading aloud took too long. Try a shorter answer.") from error
+        raise SpeechError(
+            "Reading aloud took too long. Try a shorter answer."
+        ) from error
     finally:
         text_file.unlink(missing_ok=True)
 

@@ -21,16 +21,20 @@ import numpy as np
 PROJECT_DIR = Path(__file__).parent
 EXHIBITION_DIR = PROJECT_DIR / "exhibition"
 RECORDINGS_DIR = PROJECT_DIR / "data" / "recordings"
-RATE = 22050          # samples per second of the finished demo (good quality for speech)
-GAP_SECONDS = 0.8     # silence between parts
+RATE = 22050  # samples per second of the finished demo (good quality for speech)
+GAP_SECONDS = 0.8  # silence between parts
 
-DEFAULT_INTRO = ("This is the Voice Thought Capsule. Listen to how a spoken thought is "
-                 "captured, organised and remembered.")
+DEFAULT_INTRO = (
+    "This is the Voice Thought Capsule. Listen to how a spoken thought is "
+    "captured, organised and remembered."
+)
 DEFAULT_OUTRO = "Your thoughts, kept safe, and ready when you need them."
 NARRATION = {
     "thought": "First, a thought is spoken into the capsule.",
-    "thought_tts": ("First, a thought is spoken into the capsule. The original audio was deleted "
-                    "for privacy, so it is read by the computer voice."),
+    "thought_tts": (
+        "First, a thought is spoken into the capsule. The original audio was deleted "
+        "for privacy, so it is read by the computer voice."
+    ),
     "question": "Later, the person asks:",
     "answer": "The capsule finds the relevant notes and answers:",
 }
@@ -42,14 +46,21 @@ class ExhibitionError(Exception):
 
 # --- small audio helpers (no extra software needed) --------------------------------
 
+
 def load_audio(path, rate=RATE):
     """Read a .wav file as mono float samples (-1..1) at `rate` samples per second."""
     try:
         with wave.open(str(path), "rb") as w:
-            channels, width, src_rate = w.getnchannels(), w.getsampwidth(), w.getframerate()
+            channels, width, src_rate = (
+                w.getnchannels(),
+                w.getsampwidth(),
+                w.getframerate(),
+            )
             raw = w.readframes(w.getnframes())
     except (wave.Error, EOFError, FileNotFoundError) as error:
-        raise ExhibitionError(f"Could not read the audio file {Path(path).name}.") from error
+        raise ExhibitionError(
+            f"Could not read the audio file {Path(path).name}."
+        ) from error
 
     if width == 1:
         samples = (np.frombuffer(raw, dtype=np.uint8).astype(np.float32) - 128) / 128
@@ -95,9 +106,19 @@ def write_wav(path, samples, rate=RATE):
 
 # --- building the demo -------------------------------------------------------------
 
-def create_demo(thought, question, answer, tts, intro=DEFAULT_INTRO, outro=DEFAULT_OUTRO,
-                narration=True, max_thought_seconds=30, out_dir=EXHIBITION_DIR,
-                recordings_dir=RECORDINGS_DIR):
+
+def create_demo(
+    thought,
+    question,
+    answer,
+    tts,
+    intro=DEFAULT_INTRO,
+    outro=DEFAULT_OUTRO,
+    narration=True,
+    max_thought_seconds=30,
+    out_dir=EXHIBITION_DIR,
+    recordings_dir=RECORDINGS_DIR,
+):
     """
     Build one demo audio file plus a text script.
     `tts` turns text into a .wav file path (the Mac voice, from speaker.py).
@@ -150,8 +171,12 @@ def create_demo(thought, question, answer, tts, intro=DEFAULT_INTRO, outro=DEFAU
     wav_path, txt_path = out_dir / f"demo_{stamp}.wav", out_dir / f"demo_{stamp}.txt"
     write_wav(wav_path, audio)
     script_text = "\n\n".join(script)
-    txt_path.write_text(f"Voice Thought Capsule - exhibition demo ({len(audio) / RATE:.0f} s)\n\n"
-                        + script_text + "\n", encoding="utf-8")
+    txt_path.write_text(
+        f"Voice Thought Capsule - exhibition demo ({len(audio) / RATE:.0f} s)\n\n"
+        + script_text
+        + "\n",
+        encoding="utf-8",
+    )
     return wav_path, txt_path, script_text
 
 

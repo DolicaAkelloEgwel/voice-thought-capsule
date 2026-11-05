@@ -14,15 +14,15 @@ from pathlib import Path
 
 import gradio as gr
 
-BG = "#050506"                        # page (black)
-SURFACE = "#0e0e11"                   # cards
-SURFACE_2 = "#16161a"                 # raised parts: dark buttons, bubbles
-FIELD = "#08080a"                     # inputs
+BG = "#050506"  # page (black)
+SURFACE = "#0e0e11"  # cards
+SURFACE_2 = "#16161a"  # raised parts: dark buttons, bubbles
+FIELD = "#08080a"  # inputs
 LINE = "rgba(255,255,255,0.08)"
 LINE_STRONG = "rgba(255,255,255,0.14)"
 TEXT = "#f5f5f7"
 MUTED = "#8f8f99"
-ORANGE = "#ff7a2f"                    # the accent
+ORANGE = "#ff7a2f"  # the accent
 PEACH = "#ffc4a0"
 VIOLET = "#8b5cf6"
 
@@ -105,13 +105,18 @@ _base = gr.themes.Base(
     radius_size="lg",
 )
 _allowed = set(inspect.signature(_base.set).parameters)
-THEME = _base.set(**{k: v for k, v in _values.items() if k in _allowed},
-                  **{f"{k}_dark": v for k, v in _values.items() if f"{k}_dark" in _allowed})
+THEME = _base.set(
+    **{k: v for k, v in _values.items() if k in _allowed},
+    **{f"{k}_dark": v for k, v in _values.items() if f"{k}_dark" in _allowed},
+)
 
 # The hero artwork (drawn by assets/make_hero.py), built into the page so no extra file is needed.
 _hero_file = Path(__file__).parent / "assets" / "hero.jpg"
-HERO_IMAGE = (f"url(data:image/jpeg;base64,{base64.b64encode(_hero_file.read_bytes()).decode()})"
-              if _hero_file.exists() else "none")
+HERO_IMAGE = (
+    f"url(data:image/jpeg;base64,{base64.b64encode(_hero_file.read_bytes()).decode()})"
+    if _hero_file.exists()
+    else "none"
+)
 
 HEADING = '"Inter Tight", "Inter", ui-sans-serif, system-ui, sans-serif'
 
@@ -422,21 +427,39 @@ HERO_TEXT = """<p class="vtc-hero-text">Recordings and thoughts are stored on th
 <code>data/</code> folder. To transcribe, sort, connect and answer, the audio and text are sent to
 Google's Gemini service.</p>"""
 
-_ICON = ('<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" '
-         'stroke-linejoin="round" aria-hidden="true">{}</svg>')
+_ICON = (
+    '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" '
+    'stroke-linejoin="round" aria-hidden="true">{}</svg>'
+)
 _FLOW = [
-    ("01", "Speak", '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>'),
+    (
+        "01",
+        "Speak",
+        '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+    ),
     ("02", "Transcribe", '<path d="M4 6h16M4 12h10M4 18h13"/>'),
     ("03", "Sort", '<path d="M4 7h10M4 12h7M4 17h4M17 5v14M14 16l3 3 3-3"/>'),
-    ("04", "Connect", '<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/>'
-                      '<circle cx="18" cy="18" r="2.5"/><path d="M8.3 11 15.7 7M8.3 13l7.4 4"/>'),
+    (
+        "04",
+        "Connect",
+        '<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/>'
+        '<circle cx="18" cy="18" r="2.5"/><path d="M8.3 11 15.7 7M8.3 13l7.4 4"/>',
+    ),
     ("05", "Ask", '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"/>'),
-    ("06", "Listen", '<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="6" rx="1.5"/>'
-                     '<rect x="17" y="14" width="4" height="6" rx="1.5"/>'),
+    (
+        "06",
+        "Listen",
+        '<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="6" rx="1.5"/>'
+        '<rect x="17" y="14" width="4" height="6" rx="1.5"/>',
+    ),
 ]
-FLOW_STRIP = ('<div class="vtc-flow">' +
-              "".join(f"<div>{_ICON.format(svg)}<i>{n}</i>{word}</div>" for n, word, svg in _FLOW) +
-              "</div>")
+FLOW_STRIP = (
+    '<div class="vtc-flow">'
+    + "".join(
+        f"<div>{_ICON.format(svg)}<i>{n}</i>{word}</div>" for n, word, svg in _FLOW
+    )
+    + "</div>"
+)
 
 # Hero buttons: after switching tab, scroll down to it smoothly.
 SCROLL_TO_TABS = "() => { document.querySelector('.vtc-nav')?.scrollIntoView({behavior: 'smooth'}); }"

@@ -79,7 +79,9 @@ def parse_items(reply_text):
     try:
         data = json.loads(text)
     except json.JSONDecodeError as error:
-        raise ClassificationError("Gemini's answer was not in the expected format. Try again.") from error
+        raise ClassificationError(
+            "Gemini's answer was not in the expected format. Try again."
+        ) from error
 
     raw_items = data.get("items", []) if isinstance(data, dict) else data
     items = []

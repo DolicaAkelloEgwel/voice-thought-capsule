@@ -19,8 +19,14 @@ TRANSCRIBE_PROMPT = (
 )
 NO_SPEECH_MARKER = "[no speech detected]"
 
-AUDIO_TYPES = {".wav": "audio/wav", ".mp3": "audio/mp3", ".m4a": "audio/mp4",
-               ".ogg": "audio/ogg", ".flac": "audio/flac", ".webm": "audio/webm"}
+AUDIO_TYPES = {
+    ".wav": "audio/wav",
+    ".mp3": "audio/mp3",
+    ".m4a": "audio/mp4",
+    ".ogg": "audio/ogg",
+    ".flac": "audio/flac",
+    ".webm": "audio/webm",
+}
 
 
 class TranscriptionError(Exception):
@@ -41,8 +47,10 @@ def friendly_error(error):
     if code in (401, 403):
         return "Gemini refused access with this API key. Run  python setup_key.py  and paste a fresh key."
     if code == 404:
-        return (f"Gemini model '{config.get_model()}' was not found. "
-                "Run  python check_setup.py  to see which models your key can use.")
+        return (
+            f"Gemini model '{config.get_model()}' was not found. "
+            "Run  python check_setup.py  to see which models your key can use."
+        )
     if code == 429:
         return "Gemini's free usage limit was reached. Wait a minute and try again."
     if code is not None and code >= 500:

@@ -44,7 +44,10 @@ def main(args):
 
     print(f"🎧 Demo: {demo.name} ({demo_seconds(demo):.0f} seconds)")
     loop = "--loop" in args
-    print("Playing on repeat." if loop else "Press Return to play.", "Press Control + C to stop.")
+    print(
+        "Playing on repeat." if loop else "Press Return to play.",
+        "Press Control + C to stop.",
+    )
     try:
         while True:
             if not loop:

@@ -33,8 +33,13 @@ class EditError(Exception):
 class Store:
     """All file locations in one place (tests use temporary folders)."""
 
-    def __init__(self, thoughts=THOUGHTS_FILE, undo=UNDO_FILE,
-                 recordings=RECORDINGS_DIR, bin_dir=BIN_DIR):
+    def __init__(
+        self,
+        thoughts=THOUGHTS_FILE,
+        undo=UNDO_FILE,
+        recordings=RECORDINGS_DIR,
+        bin_dir=BIN_DIR,
+    ):
         self.thoughts, self.undo = Path(thoughts), Path(undo)
         self.recordings, self.bin = Path(recordings), Path(bin_dir)
 
@@ -50,13 +55,19 @@ class Store:
     def _remember(self, description, thought_before, binned_audio=None):
         """Save a copy of the recording BEFORE it changes, so it can be restored."""
         history = self._history()
-        history.append({"description": description,
-                        "at": datetime.now().astimezone().isoformat(timespec="seconds"),
-                        "thought": json.loads(json.dumps(thought_before)),  # a true copy
-                        "binned_audio": binned_audio or []})
+        history.append(
+            {
+                "description": description,
+                "at": datetime.now().astimezone().isoformat(timespec="seconds"),
+                "thought": json.loads(json.dumps(thought_before)),  # a true copy
+                "binned_audio": binned_audio or [],
+            }
+        )
         self.undo.parent.mkdir(parents=True, exist_ok=True)
-        self.undo.write_text(json.dumps(history[-MAX_UNDO:], indent=2, ensure_ascii=False),
-                             encoding="utf-8")
+        self.undo.write_text(
+            json.dumps(history[-MAX_UNDO:], indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
 
     def last_change(self):
         history = self._history()
@@ -76,11 +87,15 @@ class Store:
                 missing.append(name)
         # Put the saved copy back, leaving every other thought exactly as it is now.
         restored = step["thought"]
-        thoughts = [t for t in load_thoughts(self.thoughts) if t["id"] != restored["id"]]
+        thoughts = [
+            t for t in load_thoughts(self.thoughts) if t["id"] != restored["id"]
+        ]
         thoughts.append(restored)
         thoughts.sort(key=lambda t: t["created_at"])
         save_thoughts(thoughts, self.thoughts)
-        self.undo.write_text(json.dumps(history, indent=2, ensure_ascii=False), encoding="utf-8")
+        self.undo.write_text(
+            json.dumps(history, indent=2, ensure_ascii=False), encoding="utf-8"
+        )
         note = " (the audio had already been permanently deleted)" if missing else ""
         return f"Undone: {step['description']}{note}"
 
@@ -97,16 +112,24 @@ class Store:
         choices = []
         for thought in reversed(load_thoughts(self.thoughts)):
             for item in thought.get("items") or []:
-                text = item["text"] if len(item["text"]) <= 70 else item["text"][:67] + "..."
+                text = (
+                    item["text"]
+                    if len(item["text"]) <= 70
+                    else item["text"][:67] + "..."
+                )
                 choices.append((f"{ICONS.get(item['type'], '')} {text}", item["id"]))
         return choices
 
     def thought_choices(self):
         choices = []
         for thought in reversed(load_thoughts(self.thoughts)):
-            saved = datetime.fromisoformat(thought["created_at"]).strftime("%d %b, %H:%M")
-            preview = thought["text"][:60] + ("..." if len(thought["text"]) > 60 else "")
-            choices.append((f"{saved} - \"{preview}\"", thought["id"]))
+            saved = datetime.fromisoformat(thought["created_at"]).strftime(
+                "%d %b, %H:%M"
+            )
+            preview = thought["text"][:60] + (
+                "..." if len(thought["text"]) > 60 else ""
+            )
+            choices.append((f'{saved} - "{preview}"', thought["id"]))
         return choices
 
     def get_item(self, item_id):
@@ -116,18 +139,28 @@ class Store:
     def edit_item(self, item_id, text, item_type, when):
         text, when = (text or "").strip(), (when or "").strip()
         if not text:
-            raise EditError("The item text can't be empty. Use 'Delete item' to remove it.")
+            raise EditError(
+                "The item text can't be empty. Use 'Delete item' to remove it."
+            )
         if item_type not in ITEM_TYPES:
             raise EditError("Choose task, reminder or idea.")
         thoughts = load_thoughts(self.thoughts)
         thought, item = self._find_item(thoughts, item_id)
-        if (item["text"], item["type"], item.get("when") or "") == (text, item_type, when):
+        if (item["text"], item["type"], item.get("when") or "") == (
+            text,
+            item_type,
+            when,
+        ):
             raise EditError("Nothing was changed.")
         self._remember(f"edit of \"{item['text']}\"", thought)
-        item.update(text=text, type=item_type, when=when or None, edited_at=datetime.now()
-                    .astimezone().isoformat(timespec="seconds"))
+        item.update(
+            text=text,
+            type=item_type,
+            when=when or None,
+            edited_at=datetime.now().astimezone().isoformat(timespec="seconds"),
+        )
         save_thoughts(thoughts, self.thoughts)
-        return f"Saved changes to \"{text}\"."
+        return f'Saved changes to "{text}".'
 
     def delete_item(self, item_id):
         thoughts = load_thoughts(self.thoughts)
@@ -153,11 +186,19 @@ class Store:
         self._remember(f"deletion of the recording from {saved}", thought, binned)
         save_thoughts([t for t in thoughts if t["id"] != thought_id], self.thoughts)
         n = len(thought.get("items") or [])
-        where = "The audio is in the bin - you can undo this." if binned else "You can undo this."
+        where = (
+            "The audio is in the bin - you can undo this."
+            if binned
+            else "You can undo this."
+        )
         return f"Deleted the recording from {saved} and its {n} item{'s' if n != 1 else ''}. {where}"
 
     def bin_count(self):
-        return len([f for f in self.bin.glob("*") if f.is_file()]) if self.bin.exists() else 0
+        return (
+            len([f for f in self.bin.glob("*") if f.is_file()])
+            if self.bin.exists()
+            else 0
+        )
 
     def empty_bin(self):
         """Permanently delete the audio in the bin. This can't be undone."""

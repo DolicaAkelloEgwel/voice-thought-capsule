@@ -24,24 +24,34 @@ def main():
 
     # 2. Does the chosen model answer?
     try:
-        reply = client.models.generate_content(model=model, contents="Reply with just the word OK.")
+        reply = client.models.generate_content(
+            model=model, contents="Reply with just the word OK."
+        )
         print(f"✅ Model '{model}' works. It replied: {(reply.text or '').strip()}")
         print("\nAll good! Start the app with:  python app.py")
         return
     except errors.APIError as error:
         print(f"❌ {friendly_error(error)}")
     except Exception as error:
-        print(f"❌ Could not reach Gemini. Check your internet connection. ({type(error).__name__}: {error})")
+        print(
+            f"❌ Could not reach Gemini. Check your internet connection. ({type(error).__name__}: {error})"
+        )
         return
 
     # 3. If the model failed, list the 'flash' models this key can use.
     try:
-        names = [m.name.removeprefix("models/") for m in client.models.list()
-                 if "flash" in (m.name or "") and "generateContent" in (m.supported_actions or [])]
+        names = [
+            m.name.removeprefix("models/")
+            for m in client.models.list()
+            if "flash" in (m.name or "")
+            and "generateContent" in (m.supported_actions or [])
+        ]
     except errors.APIError:
         return  # the key itself is the problem - the message above explains it
     if names:
-        print("\nModels your key can use (pick a plain 'flash' one, without 'preview' or 'tts'):")
+        print(
+            "\nModels your key can use (pick a plain 'flash' one, without 'preview' or 'tts'):"
+        )
         for name in sorted(names):
             print(f"   {name}")
         print("\nTo choose one, open .env in TextEdit and add a line like:")

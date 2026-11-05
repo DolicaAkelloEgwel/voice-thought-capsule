@@ -34,7 +34,9 @@ def save_recording(temp_audio_path, recordings_dir=RECORDINGS_DIR):
     Returns the path of the saved copy.
     """
     if not temp_audio_path:
-        raise ValueError("No recording found. Press the microphone button and speak first.")
+        raise ValueError(
+            "No recording found. Press the microphone button and speak first."
+        )
 
     source = Path(temp_audio_path)
     if not source.exists():
@@ -49,7 +51,9 @@ def save_recording(temp_audio_path, recordings_dir=RECORDINGS_DIR):
     # If two recordings are saved in the same second, add a number: _2, _3 ...
     counter = 2
     while destination.exists():
-        destination = recordings_dir / f"thought_{timestamp}_{counter}{source.suffix or '.wav'}"
+        destination = (
+            recordings_dir / f"thought_{timestamp}_{counter}{source.suffix or '.wav'}"
+        )
         counter += 1
 
     shutil.copy(source, destination)

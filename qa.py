@@ -24,7 +24,7 @@ from reminders import scheduled_for_items
 from storage import load_thoughts
 from transcriber import friendly_error, make_client
 
-MAX_ITEMS = 300   # newest items to search; plenty for a prototype
+MAX_ITEMS = 300  # newest items to search; plenty for a prototype
 MAX_RETRIEVED = 10
 
 RETRIEVE_PROMPT = """Below is a question and a numbered list of someone's saved notes
@@ -68,8 +68,10 @@ Notes:
 # Faculty Step 5: "Test brief versus detailed answers".
 ANSWER_LENGTHS = {
     "Brief": "Answer in 1 or 2 short, friendly sentences - just the key point.",
-    "Detailed": ("Answer in up to 8 friendly sentences. Mention every relevant note, "
-                 "group related ones together, and say when they were recorded."),
+    "Detailed": (
+        "Answer in up to 8 friendly sentences. Mention every relevant note, "
+        "group related ones together, and say when they were recorded."
+    ),
 }
 
 
@@ -85,9 +87,13 @@ def numbered_notes(items, scheduled=None):
         saved = datetime.fromisoformat(item["saved"]).strftime("%a %d %b %Y")
         alarm = ""
         if item.get("id") in scheduled:  # a real, saved schedule (reminders.py)
-            due = datetime.fromisoformat(scheduled[item["id"]]).strftime("%a %d %b %Y, %H:%M")
+            due = datetime.fromisoformat(scheduled[item["id"]]).strftime(
+                "%a %d %b %Y, %H:%M"
+            )
             alarm = f" - notification scheduled for {due}"
-        lines.append(f"{n}. [{item['type']}] {item['text']}{when} - recorded {saved}{alarm}")
+        lines.append(
+            f"{n}. [{item['type']}] {item['text']}{when} - recorded {saved}{alarm}"
+        )
     return "\n".join(lines)
 
 
@@ -96,8 +102,11 @@ def _ask_gemini(client, model, prompt, json_reply):
         response = client.models.generate_content(
             model=model,
             contents=prompt,
-            config=types.GenerateContentConfig(response_mime_type="application/json")
-            if json_reply else None,
+            config=(
+                types.GenerateContentConfig(response_mime_type="application/json")
+                if json_reply
+                else None
+            ),
         )
     except errors.APIError as error:
         raise QuestionError(friendly_error(error)) from error
@@ -116,7 +125,9 @@ def parse_numbers(reply_text, count):
     try:
         data = json.loads(text)
     except json.JSONDecodeError as error:
-        raise QuestionError("Gemini's answer was not in the expected format. Try again.") from error
+        raise QuestionError(
+            "Gemini's answer was not in the expected format. Try again."
+        ) from error
     numbers = data.get("items", []) if isinstance(data, dict) else data
     picked = []
     for n in numbers if isinstance(numbers, list) else []:
@@ -127,9 +138,17 @@ def parse_numbers(reply_text, count):
 
 def retrieve(question, items, client, model, today):
     """Stage 1: return the items relevant to the question (most relevant first)."""
-    reply = _ask_gemini(client, model, RETRIEVE_PROMPT.format(
-        max=MAX_RETRIEVED, today=today, question=question, notes=numbered_notes(items)),
-        json_reply=True)
+    reply = _ask_gemini(
+        client,
+        model,
+        RETRIEVE_PROMPT.format(
+            max=MAX_RETRIEVED,
+            today=today,
+            question=question,
+            notes=numbered_notes(items),
+        ),
+        json_reply=True,
+    )
     return [items[n - 1] for n in parse_numbers(reply, len(items))]
 
 
@@ -142,7 +161,9 @@ def ask(question, thoughts=None, client=None, model=None, today=None, detail="Br
     question = (question or "").strip()
     if not question:
         raise QuestionError("Type a question first.")
-    items = all_items(thoughts if thoughts is not None else load_thoughts())[-MAX_ITEMS:]
+    items = all_items(thoughts if thoughts is not None else load_thoughts())[
+        -MAX_ITEMS:
+    ]
     if not items:
         return "You don't have any sorted notes yet, so there is nothing to search.", []
 
@@ -155,9 +176,17 @@ def ask(question, thoughts=None, client=None, model=None, today=None, detail="Br
         return "I couldn't find anything about that in your saved notes.", []
 
     length_rule = ANSWER_LENGTHS.get(detail, ANSWER_LENGTHS["Brief"])
-    answer = _ask_gemini(client, model, ANSWER_PROMPT.format(
-        today=today, length_rule=length_rule, question=question,
-        notes=numbered_notes(found, scheduled_for_items())), json_reply=False)
+    answer = _ask_gemini(
+        client,
+        model,
+        ANSWER_PROMPT.format(
+            today=today,
+            length_rule=length_rule,
+            question=question,
+            notes=numbered_notes(found, scheduled_for_items()),
+        ),
+        json_reply=False,
+    )
     return answer or "Sorry, no answer came back. Please try again.", found
 
 
@@ -172,6 +201,8 @@ def notes_markdown(found):
     for item in found:
         when = f" — *{item['when']}*" if item.get("when") else ""
         saved = datetime.fromisoformat(item["saved"]).strftime("%d %b, %H:%M")
-        lines.append(f"- {ICONS.get(item['type'], '')} {item['text']}{when} "
-                     f"<small>(recording {saved})</small>")
+        lines.append(
+            f"- {ICONS.get(item['type'], '')} {item['text']}{when} "
+            f"<small>(recording {saved})</small>"
+        )
     return "\n".join(lines)

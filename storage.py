@@ -36,7 +36,9 @@ def load_thoughts(path=THOUGHTS_FILE):
         # then start a fresh list instead of crashing.
         backup = path.with_name(f"thoughts_damaged_{datetime.now():%Y%m%d_%H%M%S}.json")
         path.rename(backup)
-        print(f"Warning: {path.name} could not be read. A copy was saved as {backup.name}.")
+        print(
+            f"Warning: {path.name} could not be read. A copy was saved as {backup.name}."
+        )
         return []
     return data.get("thoughts", [])
 
@@ -60,7 +62,9 @@ def _with_ids(items):
     return [{"id": str(uuid.uuid4()), **item} for item in items]
 
 
-def add_thought(text, audio_file=None, duration_seconds=None, items=None, path=THOUGHTS_FILE):
+def add_thought(
+    text, audio_file=None, duration_seconds=None, items=None, path=THOUGHTS_FILE
+):
     """Create a new thought, save it, and return it."""
     text = (text or "").strip()
     if not text:
@@ -116,10 +120,19 @@ def items_table(show="All", path=THOUGHTS_FILE):
     wanted = {"Tasks": "task", "Reminders": "reminder", "Ideas": "idea"}.get(show)
     rows = []
     for thought in reversed(load_thoughts(path)):
-        when_saved = datetime.fromisoformat(thought["created_at"]).strftime("%d %b, %H:%M")
+        when_saved = datetime.fromisoformat(thought["created_at"]).strftime(
+            "%d %b, %H:%M"
+        )
         for item in thought.get("items") or []:
             if wanted and item["type"] != wanted:
                 continue
-            rows.append([TYPE_LABELS.get(item["type"], item["type"]), item["text"],
-                         item.get("when") or "", when_saved, thought["id"][:8]])
+            rows.append(
+                [
+                    TYPE_LABELS.get(item["type"], item["type"]),
+                    item["text"],
+                    item.get("when") or "",
+                    when_saved,
+                    thought["id"][:8],
+                ]
+            )
     return rows
