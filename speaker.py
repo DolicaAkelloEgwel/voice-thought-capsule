@@ -18,11 +18,16 @@ import subprocess
 import tempfile
 from datetime import datetime
 from pathlib import Path
+from sys import platform
+
+from gtts import gTTS
 
 # Kept in the system temp folder: the browser is allowed to play files from there,
 # and old answers don't pile up in your project.
 ANSWERS_DIR = Path(tempfile.gettempdir()) / "voice_thought_capsule_answers"
 SPEAKING_RATE = "180"  # words per minute (macOS default is about 175-200)
+
+MAC = "darwin"
 
 
 class SpeechError(Exception):
@@ -51,33 +56,40 @@ def speak_to_file(text, out_dir=ANSWERS_DIR, say_command=None):
     # for a command option.
     text_file.write_text(text, encoding="utf-8")
 
-    command = [
-        say,
-        "-r",
-        SPEAKING_RATE,
-        "-o",
-        str(audio_file),
-        "--file-format=WAVE",
-        "--data-format=LEI16@22050",
-        "-f",
-        str(text_file),
-    ]
-    voice = os.getenv("TTS_VOICE", "").strip()
-    if voice:
-        command[1:1] = ["-v", voice]
+    if platform == MAC:
+        command = [
+            say,
+            "-r",
+            SPEAKING_RATE,
+            "-o",
+            str(audio_file),
+            "--file-format=WAVE",
+            "--data-format=LEI16@22050",
+            "-f",
+            str(text_file),
+        ]
 
-    try:
-        subprocess.run(command, check=True, capture_output=True, timeout=60)
-    except subprocess.CalledProcessError as error:
-        hint = " Check the TTS_VOICE name in .env." if voice else ""
-        raise SpeechError(f"The Mac voice could not create the audio.{hint}") from error
-    except subprocess.TimeoutExpired as error:
-        raise SpeechError(
-            "Reading aloud took too long. Try a shorter answer."
-        ) from error
-    finally:
-        text_file.unlink(missing_ok=True)
+        voice = os.getenv("TTS_VOICE", "").strip()
+        if voice:
+            command[1:1] = ["-v", voice]
+
+        try:
+            subprocess.run(command, check=True, capture_output=True, timeout=60)
+        except subprocess.CalledProcessError as error:
+            hint = " Check the TTS_VOICE name in .env." if voice else ""
+            raise SpeechError(
+                f"The {platform} voice could not create the audio.{hint}"
+            ) from error
+        except subprocess.TimeoutExpired as error:
+            raise SpeechError(
+                "Reading aloud took too long. Try a shorter answer."
+            ) from error
+        finally:
+            text_file.unlink(missing_ok=True)
+    else:
+        myobj = gTTS(text=text, lang="en", slow=False)
+        myobj.save(str(audio_file))
 
     if not audio_file.exists() or audio_file.stat().st_size == 0:
-        raise SpeechError("The Mac voice did not produce any audio.")
+        raise SpeechError("The {platform} voice did not produce any audio.")
     return audio_file
