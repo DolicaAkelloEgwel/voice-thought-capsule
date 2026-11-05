@@ -37,17 +37,22 @@ def fake_say(tmp_path):
 
 def test_answer_becomes_an_audio_file(tmp_path, fake_say, monkeypatch):
     monkeypatch.delenv("TTS_VOICE", raising=False)
-    out = speak_to_file("You promised to help Daniel.", out_dir=tmp_path / "answers",
-                        say_command=str(fake_say))
+    out = speak_to_file(
+        "You promised to help Daniel.",
+        out_dir=tmp_path / "answers",
+        say_command=str(fake_say),
+    )
     assert out.suffix == ".wav" and out.read_text() == "You promised to help Daniel."
     args = (tmp_path / "args.txt").read_text()
     assert "--file-format=WAVE" in args and "-v" not in args.split()
-    assert list((tmp_path / "answers").glob("*.txt")) == []   # temporary text file removed
+    assert (
+        list((tmp_path / "answers").glob("*.txt")) == []
+    )  # temporary text file removed
 
 
 def test_text_starting_with_dash_is_safe(tmp_path, fake_say):
     out = speak_to_file("-o /etc/passwd", out_dir=tmp_path, say_command=str(fake_say))
-    assert out.read_text() == "-o /etc/passwd"                 # spoken as text, not as an option
+    assert out.read_text() == "-o /etc/passwd"  # spoken as text, not as an option
 
 
 def test_voice_can_be_chosen_in_env(tmp_path, fake_say, monkeypatch):

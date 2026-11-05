@@ -39,7 +39,10 @@ def audio_file(tmp_path):
 
 def test_returns_transcript(audio_file):
     client = fake_client(reply_text="  Buy oat milk tomorrow.  \n")
-    assert transcribe(audio_file, client=client, model="test-model") == "Buy oat milk tomorrow."
+    assert (
+        transcribe(audio_file, client=client, model="test-model")
+        == "Buy oat milk tomorrow."
+    )
     model, contents = client.models.calls[0]
     assert model == "test-model"
     assert contents[1].inline_data.mime_type == "audio/wav"  # audio was attached
@@ -56,13 +59,17 @@ def test_missing_file_gives_clear_error(tmp_path):
 
 
 def test_unknown_model_gives_helpful_message(audio_file):
-    error = errors.ClientError(404, {"error": {"message": "model not found", "status": "NOT_FOUND"}})
+    error = errors.ClientError(
+        404, {"error": {"message": "model not found", "status": "NOT_FOUND"}}
+    )
     with pytest.raises(TranscriptionError, match="check_setup.py"):
         transcribe(audio_file, client=fake_client(error=error), model="m")
 
 
 def test_rate_limit_gives_helpful_message(audio_file):
-    error = errors.ClientError(429, {"error": {"message": "quota", "status": "RESOURCE_EXHAUSTED"}})
+    error = errors.ClientError(
+        429, {"error": {"message": "quota", "status": "RESOURCE_EXHAUSTED"}}
+    )
     with pytest.raises(TranscriptionError, match="Wait a minute"):
         transcribe(audio_file, client=fake_client(error=error), model="m")
 

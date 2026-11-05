@@ -22,11 +22,16 @@ def test_no_file_means_no_thoughts(db):
 
 
 def test_thought_has_id_timestamp_and_text(db):
-    t = add_thought("  Buy oat milk  ", audio_file="/x/thought_1.wav", duration_seconds=3.14, path=db)
-    uuid.UUID(t["id"])                                      # a valid unique ID
-    assert datetime.fromisoformat(t["created_at"]).tzinfo   # timestamp with time zone
+    t = add_thought(
+        "  Buy oat milk  ",
+        audio_file="/x/thought_1.wav",
+        duration_seconds=3.14,
+        path=db,
+    )
+    uuid.UUID(t["id"])  # a valid unique ID
+    assert datetime.fromisoformat(t["created_at"]).tzinfo  # timestamp with time zone
     assert t["text"] == "Buy oat milk"
-    assert t["audio_file"] == "thought_1.wav"               # only the name, not the full path
+    assert t["audio_file"] == "thought_1.wav"  # only the name, not the full path
     assert t["duration_seconds"] == 3.1
 
 
