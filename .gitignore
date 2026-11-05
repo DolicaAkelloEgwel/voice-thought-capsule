@@ -1,3 +1,8 @@
 /__pycache__
 /tests/__pycache__
 .DS_Store
+/data/recordings/thought*.wav
+/data/schedule.json
+/data/thoughts.json
+/data/insights.json
+/data/consent.json
